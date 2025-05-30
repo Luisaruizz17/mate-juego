@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>🧠 SuperMate: El Reto Algebraico</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Roboto Mono', monospace;
+    background: #121212;
+    color: #eee;
+    overflow-x: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  h1 {
+    margin: 20px 0 5px 0;
+    font-weight: 700;
+    color: #55ddff;
+    text-shadow: 0 0 10px #00aaff;
+  }
+  #author {
+    font-size: 0.9em;
+    color: #aaa;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+  #quiz {
+    background: #222;
+    border-radius: 12px;
+    padding: 25px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 0 20px #0077aa88;
+    user-select: none;
+  }
+  .question {
+    font-weight: 700;
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    min-height: 60px;
+  }
+  #options button {
+    display: block;
+    width: 100%;
+    margin: 6px 0;
+    background: #333;
+    color: #eee;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  #options button:hover:not(.disabled) {
+    background: #005577;
+    box-shadow: 0 0 12px #0099ffcc;
+  }
+  #options button.correct {
+    background: #228822;
+    box-shadow: 0 0 12px #22ff22cc;
+    cursor: default;
+  }
+  #options button.wrong {
+    background: #aa2222;
+    box-shadow: 0 0 12px #ff2222cc;
+    cursor: default;
+  }
+  #feedback {
+    margin-top: 15px;
+    min-height: 24px;
+    font-weight: 700;
+    font-size: 1.1em;
+    text-align: center;
+  }
+  #score {
+    margin-top: 25px;
+    font-size: 1.1em;
+    font-weight: 700;
+    text-align: center;
+    color: #55ffaa;
+    text-shadow: 0 0 5px #00ff99;
+  }
+  #timer {
+    font-weight: 700;
+    font-size: 1.1em;
+    color: #ff6666;
+    margin-bottom: 18px;
+    text-align: center;
+    text-shadow: 0 0 7px #ff3333cc;
+  }
+  button#nextBtn {
+    margin-top: 20px;
+    padding: 10px 25px;
+    font-size: 1em;
+    border-radius: 10px;
+    background: #0066cc;
+    border: none;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 0 15px #0077ffbb;
+    transition: background 0.3s ease;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  button#nextBtn:disabled {
+    background: #444;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+</style>
+</head>
+<body>
+
+<h1>🧠 SuperMate: El Reto Algebraico</h1>
+<div id="author">Juego creado por Luisa Ruiz Tavera</div>
+
+<div id="quiz" role="main" aria-live="polite">
+  <div id="timer" aria-label="Temporizador">Tiempo restante: 03:00</div>
+  <div class="question" id="question"></div>
+  <div id="options" role="list"></div>
+  <div id="feedback" aria-live="assertive"></div>
+  <button id="nextBtn" onclick="nextQuestion()" disabled>Siguiente pregunta</button>
+  <div id="score" aria-label="Puntaje"></div>
+</div>
+
+<script>
+  // Preguntas con opciones y la opción correcta (índice)
+  const questions = [
+    {question: "¿Cuál es el valor de log₂(8x) = 5?", options: ["x = 1", "x = 4", "x = 16", "x = 32"], correct: 1},
+    {question: "Simplifica: log₄(64) - log₄(4)", options: ["2", "3", "4", "1"], correct: 0},
+    {question: "Resuelve: log₃(x - 1) + log₃(2) = 2", options: ["x = 2", "x = 3", "x = 4", "x = 5"], correct: 2},
+    {question: "Resuelve: 3x - 2(1 - x) = 4x + 5", options: ["x = -7", "x = 3", "x = -5", "x = 2"], correct: 2},
+    {question: "Sistema: 2x + y = 7 y x - y = 1. ¿Cuál es x?", options: ["3", "2", "1", "4"], correct: 0},
+    {question: "¿Cuál es la solución de log₅(25) + log₅(x) = 3?", options: ["x = 5", "x = 3", "x = 4", "x = 2"], correct: 0},
+    {question: "Resuelve: 4(x - 2) = 2x + 8", options: ["x = 6", "x = 5", "x = 4", "x = 3"], correct: 3},
+    {question: "Simplifica: log₈(64)", options: ["1", "2", "3", "4"], correct: 2},
+    {question: "Resuelve: log₂(x) + log₂(x - 2) = 3", options: ["x= 4", "x = 3", "x = 5", "x = 6"], correct: 0},
+    {question: "Si 2x + 3 = 11, ¿cuál es x?", options: ["3", "4", "2", "5"], correct: 1}
+  ];
+
+  const totalQuestions = questions.length;
+  let currentQuestion = 0;
+  let score = 0;
+  let timer;
+  let timeLeft = 180; // 3 minutos en segundos
+
+  const questionEl = document.getElementById("question");
+  const optionsEl = document.getElementById("options");
+  const feedbackEl = document.getElementById("feedback");
+  const nextBtn = document.getElementById("nextBtn");
+  const scoreEl = document.getElementById("score");
+  const timerEl = document.getElementById("timer");
+
+  function startTimer() {
+    timeLeft = 180;
+    timerEl.textContent = `Tiempo restante: 03:00`;
+    timer = setInterval(() => {
+      timeLeft--;
+      const min = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+      const sec = (timeLeft % 60).toString().padStart(2, '0');
+      timerEl.textContent = `Tiempo restante: ${min}:${sec}`;
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        feedbackEl.textContent = "¡Se acabó el tiempo para esta pregunta!";
+        disableOptions();
+        nextBtn.disabled = false;
+      }
+    }, 1000);
+  }
+
+  function loadQuestion() {
+    clearInterval(timer);
+    startTimer();
+    feedbackEl.textContent = "";
+    nextBtn.disabled = true;
+
+    const q = questions[currentQuestion];
+    questionEl.textContent = `${currentQuestion + 1}. ${q.question}`;
+    optionsEl.innerHTML = "";
+    q.options.forEach((option, i) => {
+      const btn = document.createElement("button");
+      btn.textContent = option;
+      btn.onclick = () => selectAnswer(i);
+      btn.className = "";
+      btn.disabled = false;
+      optionsEl.appendChild(btn);
+    });
+  }
+
+  function disableOptions() {
+    Array.from(optionsEl.children).forEach(btn => {
+      btn.disabled = true;
+      btn.classList.add("disabled");
+    });
+  }
+
+  function selectAnswer(index) {
+    clearInterval(timer);
+    disableOptions();
+    const correctIndex = questions[currentQuestion].correct;
+    if (index === correctIndex) {
+      score++;
+      feedbackEl.textContent = "¡Respuesta correcta! 🎉";
+      optionsEl.children[index].classList.add("correct");
+      playSound(true);
+    } else {
+      feedbackEl.textContent = `Respuesta incorrecta. La correcta es: "${questions[currentQuestion].options[correctIndex]}"`;
+      optionsEl.children[index].classList.add("wrong");
+      optionsEl.children[correctIndex].classList.add("correct");
+      playSound(false);
+    }
+    nextBtn.disabled = false;
+    updateScore();
+  }
+
+  function updateScore() {
+    scoreEl.textContent = `Puntaje: ${score} / ${totalQuestions}`;
+  }
+
+  function nextQuestion() {
+    currentQuestion++;
+    if (currentQuestion >= totalQuestions) {
+      finishQuiz();
+    } else {
+      loadQuestion();
+    }
+  }
+
+  function finishQuiz() {
+    clearInterval(timer);
+    questionEl.textContent = "¡Juego terminado!";
+    optionsEl.innerHTML = "";
+    feedbackEl.textContent = `Tu puntaje final es: ${score} de ${totalQuestions}. ¡Gracias por jugar!`;
+    nextBtn.style.display = "none";
+    timerEl.style.display = "none";
+  }
+
+  // Sonidos simples con Web Audio API
+  function playSound(correct) {
+    try {
+      const ctx = new AudioContext();
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      if (correct) {
+        oscillator.frequency.value = 600;
+        gainNode.gain.value = 0.1;
+      } else {
+        oscillator.frequency.value = 200;
+        gainNode.gain.value = 0.15;
+      }
+
+      oscillator.type = "square";
+      oscillator.start();
+      setTimeout(() => {
+        oscillator.stop();
+        ctx.close();
+      }, 150);
+    } catch(e) {
+      // Si hay error o no se puede reproducir sonido, no pasa nada
+    }
+  }
+
+  // Inicio
+  loadQuestion();
+  updateScore();
+</script>
+
+</body>
+</html>

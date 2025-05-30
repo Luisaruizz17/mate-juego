@@ -2,198 +2,283 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SuperMate: El Reto Algebraico Divertido</title>
+  <title>SuperMate: El Reto Algebraico</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
+
     body {
-      font-family: Arial, sans-serif;
-      background-color: #fceabb;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
-    }
-    #quiz {
-      background-color: #fff3d7;
-      border-radius: 20px;
-      padding: 20px;
-      max-width: 600px;
-      margin: 0 auto;
-      box-shadow: 0 8px 25px rgba(255,111,97,0.4);
-    }
-    .question {
-      font-size: 1.5rem;
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
-    #options {
+      margin: 0; padding: 0;
+      font-family: 'Roboto Mono', monospace;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: #eee;
+      overflow-x: hidden;
+      height: 100vh;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      align-items: center;
+      justify-content: flex-start;
+      position: relative;
     }
+
+    h1 {
+      margin: 20px 0 5px 0;
+      font-weight: 700;
+      color: #ffd700;
+      text-shadow: 0 0 15px #ffb800;
+    }
+
+    #author {
+      font-size: 0.9em;
+      color: #ccc;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+
+    #quiz {
+      background: rgba(0,0,0,0.75);
+      border-radius: 15px;
+      padding: 25px 30px;
+      width: 90%;
+      max-width: 650px;
+      box-shadow: 0 0 30px #ffd700aa;
+      user-select: none;
+      position: relative;
+      z-index: 10;
+    }
+
+    .question {
+      font-weight: 700;
+      font-size: 1.3em;
+      margin-bottom: 20px;
+      min-height: 60px;
+    }
+
     #options button {
-      padding: 10px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 10px;
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+      background: #222;
+      color: #ffd700;
+      border: 2px solid #ffd700;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 1.1em;
       cursor: pointer;
-      background-color: #ffb47d;
-      color: #652b0d;
-      transition: background-color 0.3s;
+      transition: background 0.4s ease, color 0.4s ease;
+      box-shadow: 0 0 10px #ffcc0099;
+      font-weight: 600;
     }
-    #options button:hover {
-      background-color: #ff9c48;
+
+    #options button:hover:not([disabled]) {
+      background: #ffd700;
+      color: #222;
+      box-shadow: 0 0 15px #fff48ccc;
     }
+
+    #options button.correct {
+      background: #32cd32;
+      border-color: #28a428;
+      color: white;
+      box-shadow: 0 0 18px #2ecc4022;
+    }
+
+    #options button.incorrect {
+      background: #dc3545;
+      border-color: #b02a37;
+      color: white;
+      box-shadow: 0 0 18px #e74c3c44;
+    }
+
     #feedback {
       margin-top: 15px;
-      font-weight: bold;
+      min-height: 28px;
+      font-weight: 700;
+      font-size: 1.15em;
+      text-align: center;
+      color: #fff;
+      text-shadow: 0 0 8px #ffcc00aa;
+      user-select: none;
     }
-    #nextBtn {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 1rem;
+
+    #score {
+      margin-top: 30px;
+      font-size: 1.3em;
+      font-weight: 700;
+      text-align: center;
+      color: #ffd700;
+      text-shadow: 0 0 10px #ffb800cc;
+      user-select: none;
+    }
+
+    #timer {
+      font-weight: 700;
+      font-size: 1.2em;
+      color: #ffeb3b;
+      margin-bottom: 18px;
+      text-align: center;
+      text-shadow: 0 0 12px #ffeb3bcc;
+      user-select: none;
+    }
+
+    button#nextBtn {
+      margin-top: 25px;
+      padding: 12px 30px;
+      font-size: 1.1em;
+      border-radius: 15px;
+      background: #ffd700;
       border: none;
-      border-radius: 20px;
-      background-color: #ff6f61;
-      color: white;
+      color: #222;
       cursor: pointer;
+      box-shadow: 0 0 25px #fff176cc;
+      transition: background 0.3s ease;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      font-weight: 700;
+    }
+
+    button#nextBtn:disabled {
+      background: #777;
+      cursor: not-allowed;
+      box-shadow: none;
+      color: #ccc;
+    }
+
+    /* Fondo animado de símbolos matemáticos */
+    #math-background {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+      font-family: 'Roboto Mono', monospace;
+      color: #ffeb3b22;
+      font-weight: 700;
+      font-size: 22px;
+      text-shadow: 0 0 8px #ffd700aa;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: center;
+      justify-content: center;
+      opacity: 0.15;
+      animation: floatMath 20s linear infinite;
+      user-select: none;
+    }
+
+    @keyframes floatMath {
+      0% { transform: translateY(100%) rotate(0deg); }
+      100% { transform: translateY(-120%) rotate(360deg); }
+    }
+
+    .math-item {
+      margin: 0 12px;
+      animation: pulse 3s ease-in-out infinite alternate;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.3; }
+      100% { opacity: 0.8; }
+    }
+
+    /* Animación confeti */
+    .confetti-piece {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background-color: #ffd700;
+      opacity: 0.9;
+      z-index: 50;
+      animation: confetti-fall linear forwards;
+      border-radius: 3px;
+      filter: drop-shadow(0 0 2px #ffb800);
+    }
+
+    @keyframes confetti-fall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* Animación burbujas */
+    .bubble {
+      position: fixed;
+      bottom: -50px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, #ffd700aa, #ffaa0088);
+      opacity: 0.8;
+      animation: bubble-up linear forwards;
+      pointer-events: none;
+      z-index: 0;
+      filter: drop-shadow(0 0 6px #ffaa00cc);
+    }
+
+    @keyframes bubble-up {
+      0% {
+        transform: translateY(0) scale(0.4);
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(-110vh) scale(1);
+        opacity: 0;
+      }
+    }
+
+    /* Sonidos (hidden) */
+    audio {
       display: none;
     }
-    #score {
-      margin-top: 20px;
-      font-size: 1.2rem;
-      font-weight: bold;
-    }
+
   </style>
 </head>
 <body>
 
-  <h1>🧠 SuperMate: El Reto Algebraico Divertido</h1>
-  <div id="author">Juego creado por Luisa Ruiz Tavera</div>
+<div id="math-background" aria-hidden="true" aria-label="Símbolos matemáticos flotando">
+  <div class="math-item">∑</div>
+  <div class="math-item">∫</div>
+  <div class="math-item">log</div>
+  <div class="math-item">√</div>
+  <div class="math-item">π</div>
+  <div class="math-item">∞</div>
+  <div class="math-item">x²</div>
+  <div class="math-item">∂</div>
+  <div class="math-item">e</div>
+  <div class="math-item">Δ</div>
+  <div class="math-item">≠</div>
+  <div class="math-item">≈</div>
+  <div class="math-item">θ</div>
+</div>
 
-  <div id="quiz">
-    <div class="question" id="question">Cargando pregunta...</div>
-    <div id="options"></div>
-    <div id="feedback"></div>
-    <button id="nextBtn" onclick="nextQuestion()">Siguiente pregunta</button>
-    <div id="score"></div>
-  </div>
+<h1>🧠 SuperMate: El Reto Algebraico</h1>
+<div id="author">Juego creado por Luisa Ruiz Tavera</div>
 
-  <script>
-    const questions = [
-      {
-        question: "¿Cuál es el valor de log₂(8x) = 5?",
-        options: ["x = 1", "x = 4", "x = 16", "x = 32"],
-        correct: 1
-      },
-      {
-        question: "Simplifica: log₄(64) - log₄(4)",
-        options: ["2", "3", "4", "1"],
-        correct: 0
-      },
-      {
-        question: "Resuelve: log₃(x - 1) + log₃(2) = 2",
-        options: ["x = 2", "x = 3", "x = 4", "x = 5"],
-        correct: 2
-      },
-      {
-        question: "Resuelve: 3x - 2(1 - x) = 4x + 5",
-        options: ["x = -7", "x = 3", "x = -5", "x = 2"],
-        correct: 2
-      },
-      {
-        question: "Simplifica: log₅(25x) = 3",
-        options: ["x = 1", "x = 2", "x = 3", "x = 4"],
-        correct: 0
-      },
-      {
-        question: "Resuelve: 2x + 3 = 7x - 8",
-        options: ["x = 3", "x = 11/5", "x = 5", "x = 1"],
-        correct: 1
-      },
-      {
-        question: "¿Cuál es el valor de x en: log₁₀(x) + log₁₀(100) = 3?",
-        options: ["x = 10", "x = 20", "x = 30", "x = 100"],
-        correct: 0
-      },
-      {
-        question: "Resuelve: log₂(x² - 3x) = 3",
-        options: ["x = 4", "x = 6", "x = 3 o 4", "x = 3"],
-        correct: 2
-      },
-      {
-        question: "Resuelve el sistema: 2x + y = 5 y x - y = 1",
-        options: ["x = 2, y = 1", "x = 1, y = 3", "x = 1, y = -1", "x = 3, y = -1"],
-        correct: 0
-      },
-      {
-        question: "Resuelve: 5x - 3(2x - 1) = 4(x + 2)",
-        options: ["x = 5", "x = 2", "x = 1", "x = 3"],
-        correct: 3
-      }
-    ];
+<div id="quiz" role="main" aria-live="polite" aria-atomic="true">
+  <div id="timer" aria-label="Temporizador">Tiempo restante: 03:00</div>
+  <div class="question" id="question"></div>
+  <div id="options" role="list"></div>
+  <div id="feedback" aria-live="assertive"></div>
+  <button id="nextBtn" onclick="nextQuestion()" disabled>Siguiente pregunta</button>
+  <div id="score" aria-label="Puntaje"></div>
+</div>
 
-    let currentQuestion = 0;
-    let score = 0;
+<!-- Sonidos -->
+<audio id="sound-correct" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+<audio id="sound-wrong" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
 
-    const questionEl = document.getElementById('question');
-    const optionsEl = document.getElementById('options');
-    const feedbackEl = document.getElementById('feedback');
-    const nextBtn = document.getElementById('nextBtn');
-    const scoreEl = document.getElementById('score');
-
-    function loadQuestion() {
-      const q = questions[currentQuestion];
-      questionEl.textContent = q.question;
-      optionsEl.innerHTML = '';
-      feedbackEl.textContent = '';
-      nextBtn.style.display = 'none';
-
-      q.options.forEach((option, index) => {
-        const btn = document.createElement('button');
-        btn.textContent = option;
-        btn.onclick = () => selectAnswer(index);
-        optionsEl.appendChild(btn);
-      });
-    }
-
-    function selectAnswer(index) {
-      const q = questions[currentQuestion];
-      const buttons = optionsEl.querySelectorAll('button');
-      buttons.forEach(btn => btn.disabled = true);
-
-      if (index === q.correct) {
-        buttons[index].style.backgroundColor = '#4caf50';
-        feedbackEl.textContent = '¡Correcto!';
-        score++;
-      } else {
-        buttons[index].style.backgroundColor = '#e53935';
-        buttons[q.correct].style.backgroundColor = '#4caf50';
-        feedbackEl.textContent = 'Incorrecto.';
-      }
-
-      nextBtn.style.display = 'inline-block';
-    }
-
-    function nextQuestion() {
-      currentQuestion++;
-      if (currentQuestion < questions.length) {
-        loadQuestion();
-      } else {
-        showScore();
-      }
-    }
-
-    function showScore() {
-      questionEl.textContent = '¡Juego terminado!';
-      optionsEl.innerHTML = '';
-      feedbackEl.textContent = '';
-      nextBtn.style.display = 'none';
-      scoreEl.textContent = `Puntaje final: ${score} de ${questions.length}`;
-    }
-
-    // Iniciar el juego
-    loadQuestion();
-  </script>
-
-</body>
-</html>
+<script>
+  const questions = [
+    {
+      question: "¿Cuál es el valor de x si log₂(8x) = 5?",
+      options: ["x = 1", "x = 4", "x = 16", "x = 32"],
+      correct: 1
+    },
+    {
+      question: "Simpl

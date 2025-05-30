@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>SuperMate: El Reto Algebraico</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
+
+    body {
+      margin: 0; padding: 0;
+      font-family: 'Roboto Mono', monospace;
+      background: #121212;
+      color: #eee;
+      overflow-x: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      position: relative;
+    }
+
+    h1 {
+      margin: 20px 0 5px 0;
+      font-weight: 700;
+      color: #55ddff;
+      text-shadow: 0 0 10px #00aaff;
+    }
+
+    #author {
+      font-size: 0.9em;
+      color: #aaa;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+
+    #quiz {
+      background: #222;
+      border-radius: 12px;
+      padding: 25px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 0 20px #0077aa88;
+      user-select: none;
+      position: relative;
+      z-index: 1;
+    }
+
+    .question {
+      font-weight: 700;
+      font-size: 1.2em;
+      margin-bottom: 20px;
+      min-height: 60px;
+    }
+
+    #options button {
+      display: block;
+      width: 100%;
+      margin: 6px 0;
+      background: #333;
+      color: #eee;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      box-shadow: 0 0 8px #00446688;
+    }
+
+    #options button:hover:not(:disabled) {
+      background: #005577;
+      box-shadow: 0 0 12px #0099ffcc;
+    }
+
+    #options button:disabled {
+      cursor: default;
+      background: #555;
+      box-shadow: none;
+    }
+
+    #feedback {
+      margin-top: 15px;
+      min-height: 24px;
+      font-weight: 700;
+      font-size: 1.1em;
+      text-align: center;
+    }
+
+    #score {
+      margin-top: 25px;
+      font-size: 1.1em;
+      font-weight: 700;
+      text-align: center;
+      color: #55ffaa;
+      text-shadow: 0 0 5px #00ff99;
+    }
+
+    #timer {
+      font-weight: 700;
+      font-size: 1.1em;
+      color: #ff6666;
+      margin-bottom: 18px;
+      text-align: center;
+      text-shadow: 0 0 7px #ff3333cc;
+    }
+
+    button#nextBtn {
+      margin-top: 20px;
+      padding: 10px 25px;
+      font-size: 1em;
+      border-radius: 10px;
+      background: #0066cc;
+      border: none;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 0 15px #0077ffbb;
+      transition: background 0.3s ease;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    button#nextBtn:disabled {
+      background: #444;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Fondo animado de fórmulas matemáticas */
+    #math-background {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+      color: #1177cc22;
+      font-size: 22px;
+      user-select: none;
+      font-weight: 700;
+      font-family: 'Roboto Mono', monospace;
+      text-shadow: 0 0 6px #0077ffaa;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: center;
+      justify-content: center;
+      opacity: 0.12;
+      animation: floatMath 15s linear infinite;
+    }
+
+    @keyframes floatMath {
+      0% { transform: translateY(100%) rotate(0deg); }
+      100% { transform: translateY(-120%) rotate(360deg); }
+    }
+
+    .math-item {
+      margin: 0 10px;
+      animation: pulse 3s ease-in-out infinite alternate;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.3; }
+      100% { opacity: 0.8; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="math-background" aria-hidden="true">
+  <div class="math-item">∑</div>
+  <div class="math-item">∫</div>
+  <div class="math-item">log</div>
+  <div class="math-item">√</div>
+  <div class="math-item">π</div>
+  <div class="math-item">∞</div>
+  <div class="math-item">x²</div>
+  <div class="math-item">∂</div>
+  <div class="math-item">e</div>
+  <div class="math-item">Δ</div>
+  <div class="math-item">≠</div>
+  <div class="math-item">≈</div>
+  <div class="math-item">θ</div>
+</div>
+
+<h1>🧠 SuperMate: El Reto Algebraico</h1>
+<div id="author">Juego creado por Luisa Ruiz Tavera</div>
+
+<div id="quiz" role="main" aria-live="polite">
+  <div id="timer" aria-label="Temporizador">Tiempo restante: 03:00</div>
+  <div class="question" id="question"></div>
+  <div id="options" role="list"></div>
+  <div id="feedback" aria-live="assertive"></div>
+  <button id="nextBtn" onclick="nextQuestion()" disabled>Siguiente pregunta</button>
+  <div id="score" aria-label="Puntaje"></div>
+</div>
+
+<script>
+const questions = [
+  {
+    question: "¿Cuál es el valor de log₂(8x) = 5?",
+    options: ["x = 1", "x = 4", "x = 16", "x = 32"],
+    correct: 1
+  },
+  {
+    question: "Simplifica: log₄(64) - log₄(4)",
+    options: ["2", "3", "4", "1"],
+    correct: 0
+  },
+  {
+    question: "Resuelve: log₃(x - 1) + log₃(2) = 2",
+    options: ["x = 2", "x = 3", "x = 4", "x = 5"],
+    correct: 2
+  },
+  {
+    question: "Resuelve: 3x - 2(1 - x) = 4x + 5",
+    options: ["x = -7", "x = 3", "x = -5", "x = 2"],
+    correct: 2
+  },
+  {
+    question: "Sistema: 2x + y = 5 y x - y = 1, ¿cuál es x?",
+    options: ["1", "2", "3", "4"],
+    correct: 1
+  }
+];
+
+let currentQuestion = 0;
+let score = 0;
+let timeLeft = 180; // 3 minutos en segundos
+let timerInterval = null;
+let answered = false;
+
+const questionEl = document.getElementById('question');
+const optionsEl = document.getElementById('options');
+const feedbackEl = document.getElementById('feedback');
+const nextBtn = document.getElementById('nextBtn');
+const timerEl = document.getElementById('timer');
+const scoreEl = document.getElementById('score');
+
+// Sonidos
+const soundCorrect = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
+const soundWrong = new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
+
+function startTimer() {
+  timeLeft = 180;
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      feedbackEl.textContent = 'Se acabó el tiempo 😞';
+      disableOptions();
+      nextBtn.disabled = false;
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  let minutes = Math.floor(timeLeft / 60);
+  let seconds = timeLeft % 60;
+  timerEl.textContent = `Tiempo restante: ${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+}
+
+function loadQuestion() {
+  answered = false;
+  nextBtn.disabled = true;
+  feedbackEl.textContent = '';
+  questionEl.textContent = questions[currentQuestion].question;
+  optionsEl.innerHTML = '';
+
+  questions[currentQuestion].options.forEach((opt, index) => {
+    const btn = document.createElement('button');
+    btn.textContent = opt;
+    btn.disabled = false;
+    btn.onclick = () => selectAnswer(index);
+    optionsEl.appendChild(btn);
+  });
+
+  startTimer();
+}
+
+function selectAnswer(index) {
+  if (answered) return;
+
+  answered = true;
+  clearInterval(timerInterval);
+  disableOptions();
+
+  if (index === questions[currentQuestion].correct) {
+    feedbackEl.textContent = '¡Correcto! 🎉';
+    score++;
+    soundCorrect.play();
+  } else {
+    feedbackEl.textContent = `Incorrecto. La respuesta correcta es: ${questions[currentQuestion].options[questions[currentQuestion].correct]}`;
+    soundWrong.play();
+  }
+
+  scoreEl.textContent = `Puntaje: ${score} / ${questions.length}`;
+  nextBtn.disabled = false;
+}
+
+function disableOptions() {
+  Array.from(optionsEl.children).forEach(btn => btn.disabled = true);
+}
+
+function nextQuestion() {
+  if (!answered) return;
+  currentQuestion++;
+  if (currentQuestion >= questions.length) {
+    // Juego terminado
+    questionEl.textContent = '¡Felicidades! Completaste el reto

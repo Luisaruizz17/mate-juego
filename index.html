@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SuperMate: El Reto Algebraico Divertido</title>
+
+<!-- Fuente divertida y monoespaciada -->
+<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Roboto+Mono&display=swap" rel="stylesheet">
+
+<style>
+  /* RESET Y BODY */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Comic Neue', cursive, 'Roboto Mono', monospace;
+    background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%);
+    color: #222;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px 10px;
+    user-select: none;
+  }
+
+  h1 {
+    font-size: 2.8rem;
+    color: #ff6f61;
+    text-shadow: 1px 1px 3px #cc4c3f;
+    margin-bottom: 6px;
+    animation: bounceIn 0.9s ease forwards;
+  }
+  #author {
+    font-size: 1rem;
+    color: #aa5533;
+    font-style: italic;
+    margin-bottom: 20px;
+  }
+
+  /* CONTENEDOR DEL JUEGO */
+  #quiz {
+    background: #fff3d7;
+    border-radius: 20px;
+    padding: 25px 30px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 8px 25px rgba(255,111,97,0.4);
+    position: relative;
+  }
+
+  /* Temporizador circular */
+  #timer {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 15px;
+    position: relative;
+  }
+  #timer svg {
+    transform: rotate(-90deg);
+    width: 80px;
+    height: 80px;
+  }
+  #timer circle {
+    fill: none;
+    stroke-width: 8;
+    stroke-linecap: round;
+  }
+  #timer .bg {
+    stroke: #ffd27f;
+  }
+  #timer .progress {
+    stroke: #ff6f61;
+    stroke-dasharray: 251.2; /* 2 * pi * 40 (radius) */
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear;
+  }
+  #timerText {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: #cc4c3f;
+    user-select: none;
+  }
+
+  /* Pregunta */
+  .question {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-align: center;
+    min-height: 70px;
+    animation: popIn 0.6s ease forwards;
+  }
+
+  /* Opciones */
+  #options {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  #options button {
+    background: #ffb47d;
+    border: none;
+    border-radius: 14px;
+    padding: 15px 20px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px #cc7248;
+    color: #652b0d;
+    transition:
+      background 0.25s ease,
+      transform 0.3s cubic-bezier(0.175, 0.885, 0.320, 1.275);
+  }
+  #options button:hover:not(:disabled) {
+    background: #ff9c48;
+    transform: translateY(-4px);
+    box-shadow: 0 10px #cc7248;
+  }
+  #options button:disabled {
+    cursor: default;
+    background: #f0d7b1;
+    box-shadow: none;
+    color: #a87c54;
+  }
+  #options button.correct {
+    background: #4caf50;
+    color: white;
+    box-shadow: 0 6px #2e7d32;
+  }
+  #options button.incorrect {
+    background: #e53935;
+    color: white;
+    box-shadow: 0 6px #ab000d;
+  }
+
+  /* Feedback */
+  #feedback {
+    text-align: center;
+    margin-top: 18px;
+    min-height: 26px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #555;
+    user-select: none;
+  }
+
+  /* Botón siguiente */
+  #nextBtn {
+    margin: 25px auto 0;
+    display: block;
+    background: #ff6f61;
+    border: none;
+    border-radius: 30px;
+    padding: 14px 48px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 8px #cc4c3f;
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+  #nextBtn:hover:not(:disabled) {
+    background: #ff4a3a;
+    transform: scale(1.1);
+  }
+  #nextBtn:disabled {
+    background: #f7b9b3;
+    cursor: default;
+    box-shadow: none;
+  }
+
+  /* Score final */
+  #score {
+    text-align: center;
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: #cc4c3f;
+    margin-top: 18px;
+  }
+
+  /* Animaciones */
+  @keyframes bounceIn {
+    0% { opacity: 0; transform: translateY(-30px) scale(0.5);}
+    70% { transform: translateY(10px) scale(1.1); opacity: 1;}
+    100% { transform: translateY(0) scale(1);}
+  }
+  @keyframes popIn {
+    0% { opacity: 0; transform: scale(0.8);}
+    100% { opacity: 1; transform: scale(1);}
+  }
+
+  /* Confetti */
+  .confetti {
+    position: fixed;
+    width: 12px;
+    height: 12px;
+    background-color: #ff6f61;
+    opacity: 0.9;
+    z-index: 9999;
+    pointer-events: none;
+    animation: confetti-fall 2.5s ease forwards;
+  }
+  @keyframes confetti-fall {
+    0% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 0.9;
+    }
+    100% {
+      transform: translateY(600px) rotate(360deg);
+      opacity: 0;
+    }
+  }
+</style>
+
+</head>
+<body>
+
+<h1>🧠 SuperMate: El Reto Algebraico Divertido</h1>
+<div id="author">Juego creado por Luisa Ruiz Tavera</div>
+
+<div id="quiz" role="main" aria-live="polite" aria-label="Juego de preguntas de álgebra y logaritmos">
+  <div id="timer" aria-label="Temporizador de 3 minutos">
+    <svg>
+      <circle class="bg" cx="40" cy="40" r="40"></circle>
+      <circle class="progress" cx="40" cy="40" r="40"></circle>
+    </svg>
+    <div id="timerText">03:00</div>
+  </div>
+
+  <div class="question" id="question">Cargando pregunta...</div>
+
+  <div id="options" role="list" aria-label="Opciones de respuesta"></div>
+
+  <div id="feedback" aria-live="assertive" aria-atomic="true"></div>
+
+  <button id="nextBtn" disabled aria-disabled="true" aria-label="Siguiente pregunta" onclick="nextQuestion()">Siguiente pregunta</button>
+
+  <div id="score" aria-label="Puntaje final"></div>
+</div>
+
+<audio id="correctSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
+<audio id="wrongSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
+<audio id="timeOutSound" src="https://actions.google.com/sounds/v1/cartoon/slide_whistle_to_drum_hit.ogg" preload="auto"></audio>
+
+<script>
+(() => {
+  'use strict';
+
+  const questions = [
+    // Preguntas básicas y semi básicas, 7 normales y 3 más complejas al final
+    {
+      question: "¿Cuál es el valor de log₂(8x) = 5?",
+      options: ["x = 1", "x = 4", "x = 16", "x = 32"],
+      correct: 1
+    },
+    {
+      question: "Simplifica: log₄(64) - log₄(4)",
+      options: ["2", "3", "4", "1"],
+      correct: 0
+    },
+    {
+      question: "Resuelve: log₃(x - 1) + log₃(2) = 2",
+      options: ["x = 2", "x = 3", "x = 4", "x = 5"],
+      correct: 2
+    },
+    {
+      question: "Resuelve: 3x - 2(1 - x) = 4x + 5",
+      options: ["x = -7", "x = 3", "x = -5", "x = 2"],
+      correct: 2
+    },
+    {
+      question: "Simplifica: log₅(25x) = 3",
+      options: ["x = 1", "x = 2", "x = 3", "x = 4"],
+      correct: 0
+    },
+    {
+      question: "Resuelve: 2x + 3 = 7x - 8",
+      options: ["x = 3", "x = 11/5", "x = 5", "x = 1"],
+      correct: 1
+    },
+    {
+      question: "¿Cuál es el valor de x en: log₁₀(x) + log₁₀(100) = 3?",
+      options: ["x = 10", "x = 20", "x = 30", "x = 100"],
+      correct: 0
+    },
+
+    // Preguntas más complejas
+    {
+      question: "Resuelve: log₂(x² - 3x) = 3",
+      options: ["x = 4", "x = 6", "x = 3 o 4", "x = 3"],
+      correct: 2
+    },
+    {
+      question: "Resuelve el sistema: 2x + y = 5 y x - y = 1",
+      options: ["x = 2, y = 1", "x = 1, y = 3", "x = 1, y = -1", "x = 3, y = -1"],
+      correct: 0
+    },
+    {
+      question: "Resuelve: 5x - 3(2x - 1) = 4(x + 2)",
+      options: ["x = 5", "x = 2", "x = 1", "x = 3"],
+      correct: 3
+    }
+  ];
+
+  let currentQuestion = 0;
+  let score = 0;
+  let timerInterval = null;
+  let timeLeft = 180; // 3 minutos = 180 segundos
+
+  // Referencias DOM
+  const questionEl = document.getElementById('question');
+  const optionsEl = document.getElementById('options');
+  const feedbackEl = document.getElementById('feedback');
+  const nextBtn = document.getElementById('nextBtn');
+  const scoreEl = document.getElementById('score');
+  const timerText = document.getElementById('timerText');
+  const progressCircle = document.querySelector('#timer .progress');
+
+  // Sonidos
+  const soundCorrect = document.getElementById('correctSound');
+  const soundWrong = document.getElementById('wrongSound');
+  const soundTimeOut = document.getElementById('timeOutSound');
+
+  // Animación confetti
+  function createConfetti() {
+    const confettiCount = 30;
+    for(let i = 0; i < confettiCount; i++) {
+      const confetti = document.createElement('div');
+      confetti.classList.add('confetti');
+      confetti.style.left = Math.random() * window.innerWidth + 'px';
+      confetti.style.backgroundColor = `hsl(${Math.random()*360}, 90%, 60%)`;
+      confetti.style.animationDelay = (Math.random() * 2) + 's';
+      confetti.style.transform = `rotate(${Math.random()*360}deg)`;
+      document.body.appendChild(confetti);
+
+      setTimeout(() => {
+        confetti.remove();
+      }, 2500);
+    }
+  }
+
+  // Actualiza el timer circular y texto
+  function updateTimer() {
+    const radius = 40;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (timeLeft / 180) * circumference;
+    progressCircle

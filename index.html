@@ -6,34 +6,27 @@
 <title>SuperMate: El Reto Algebraico</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap');
-
   body {
     margin: 0; padding: 0;
     font-family: 'Comic Neue', cursive;
     background: linear-gradient(135deg, #fff9c4, #f8bbd0);
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: flex; flex-direction: column; align-items: center;
     min-height: 100vh;
     color: #444;
     user-select: none;
   }
-
   h1 {
     margin-top: 20px;
     font-size: 2.8rem;
     color: #d81b60;
     text-shadow: 1px 1px 4px #fff3e0;
   }
-
   #author {
     font-size: 1rem;
     margin-bottom: 15px;
     font-style: italic;
     color: #6a1b9a;
   }
-
   #quiz {
     background: #fff3e0cc;
     border-radius: 15px;
@@ -44,7 +37,6 @@
     position: relative;
     z-index: 10;
   }
-
   .question {
     font-weight: 700;
     font-size: 1.3rem;
@@ -52,7 +44,6 @@
     min-height: 70px;
     white-space: pre-line;
   }
-
   #options button {
     display: block;
     width: 100%;
@@ -67,17 +58,14 @@
     box-shadow: 0 5px 10px #ce93d8aa;
     transition: transform 0.2s ease, background 0.3s ease;
   }
-
   #options button:hover:not(:disabled) {
     background: #ce93d8;
     transform: scale(1.05);
   }
-
   #options button:disabled {
     background: #aaa;
     cursor: not-allowed;
   }
-
   #feedback {
     margin-top: 20px;
     font-weight: 700;
@@ -85,7 +73,6 @@
     min-height: 28px;
     text-align: center;
   }
-
   #score {
     margin-top: 25px;
     font-weight: 700;
@@ -93,7 +80,6 @@
     text-align: center;
     color: #d81b60;
   }
-
   #timer {
     font-weight: 700;
     font-size: 1.1rem;
@@ -101,7 +87,6 @@
     margin-bottom: 18px;
     text-align: center;
   }
-
   button#nextBtn {
     margin-top: 25px;
     padding: 12px 30px;
@@ -117,17 +102,14 @@
     margin-left: auto;
     margin-right: auto;
   }
-
   button#nextBtn:hover:not(:disabled) {
     background: #ce93d8;
     transform: scale(1.05);
   }
-
   button#nextBtn:disabled {
     background: #aaa;
     cursor: not-allowed;
   }
-
   /* Burbuja animaciones */
   .bubble {
     position: fixed;
@@ -136,12 +118,10 @@
     pointer-events: none;
     animation: floatUp 6s linear forwards;
   }
-
   @keyframes floatUp {
     0% { transform: translateY(100vh) scale(1); opacity: 0.7; }
     100% { transform: translateY(-50px) scale(0.5); opacity: 0; }
   }
-
   /* Confeti */
   .confetti-piece {
     position: fixed;
@@ -152,7 +132,6 @@
     pointer-events: none;
     animation: confetti-fall 1s forwards ease-out;
   }
-
   @keyframes confetti-fall {
     0% {
       transform: translateY(0) rotate(0deg);
@@ -163,7 +142,6 @@
       opacity: 0;
     }
   }
-
   /* Fondo de símbolos matemáticos */
   #math-background {
     pointer-events: none;
@@ -181,22 +159,18 @@
     justify-content: center;
     animation: floatMath 18s linear infinite;
   }
-
   @keyframes floatMath {
     0% { transform: translateY(100%) rotate(0deg);}
     100% { transform: translateY(-120%) rotate(360deg);}
   }
-
   .math-symbol {
     margin: 0 15px;
     animation: pulse 3.5s ease-in-out infinite alternate;
   }
-
   @keyframes pulse {
     0% { opacity: 0.25;}
     100% { opacity: 0.8;}
   }
-
 </style>
 </head>
 <body>
@@ -230,76 +204,142 @@
 </div>
 
 <script>
-  // Preguntas con dificultad progresiva
-  const questions = [
-    {q:"¿Cuál es el valor de log₂(8x) = 5?", o:["x = 1","x = 4","x = 16","x = 32"], c:1},
-    {q:"Simplifica: log₄(64) - log₄(4)", o:["2","3","4","1"], c:0},
-    {q:"Resuelve: log₃(x - 1) + log₃(2) = 2", o:["x = 2","x = 3","x = 4","x = 5"], c:2},
-    {q:"Resuelve: 3x - 2(1 - x) = 4x + 5", o:["x = -7","x = 3","x = -5","x = 2"], c:2},
-    {q:"Sistema de ecuaciones:\n2x + y = 7\nx - y = 1", o:["x=2,y=3","x=1,y=5","x=3,y=1","x=4,y=5"], c:0},
-    {q:"Calcula log₅(125)", o:["1","2","3","4"], c:2},
-    {q:"Si logₐ(x) = 3 y logₐ(y) = 5, ¿cuál es logₐ(xy)?", o:["2","8","15","5"], c:2},
-    {q:"Resuelve la ecuación: 4x + 3 = 7x - 5", o:["x = 2","x = 4","x = -2","x = 1"], c:0},
-    {q:"¿Cuál es el valor de x en: log₂(x) + log₂(x - 2) = 3?", o:["x=3","x=4","x=5","x=6"], c:2},
-    {q:"Resuelve: log₁₀(1000) - log₁₀(10) + log₁₀(5)", o:["2","3","4","5"], c:2}
-  ];
+const questions = [
+  {q:"¿Cuál es el valor de log₂(8x) = 5?", o:["x = 1","x = 4","x = 16","x = 32"], c:1},
+  {q:"Simplifica: log₄(64) - log₄(4)", o:["2","3","4","1"], c:0},
+  {q:"Resuelve: log₃(x - 1) + log₃(2) = 2", o:["x = 2","x = 3","x = 4","x = 5"], c:2},
+  {q:"Resuelve: 3x - 2(1 - x) = 4x + 5", o:["x = -7","x = 3","x = -5","x = 2"], c:2},
+  {q:"Sistema de ecuaciones:\n2x + y = 7\nx - y = 1", o:["x=2,y=3","x=1,y=5","x=3,y=1","x=4,y=5"], c:0},
+  {q:"Calcula log₅(125)", o:["1","2","3","4"], c:2},
+  {q:"Si logₐ(x) = 3 y logₐ(y) = 5, ¿cuál es logₐ(xy)?", o:["2","8","15","5"], c:2},
+  {q:"Resuelve la ecuación: 4x + 3 = 7x - 5", o:["x = 2","x = 4","x = -2","x = 1"], c:0},
+  {q:"¿Cuál es el valor de x en: log₂(x) + log₂(x - 2) = 3?", o:["x=3","x=4","x=5","x=6"], c:2},
+  {q:"Resuelve: log₁₀(1000) - log₁₀(10) + log₁₀(5)", o:["2","3","4","5"], c:2}
+];
 
-  let currentQuestion = 0;
-  let score = 0;
-  let timerInterval;
-  let timeLeft = 180; // 3 minutos = 180 segundos
-  let answered = false;
+let currentQuestion = 0;
+let score = 0;
+let timerInterval;
+let timeLeft = 180;
+let answered = false;
 
-  const questionEl = document.getElementById('question');
-  const optionsEl = document.getElementById('options');
-  const feedbackEl = document.getElementById('feedback');
-  const nextBtn = document.getElementById('nextBtn');
-  const timerEl = document.getElementById('timer');
-  const scoreEl = document.getElementById('score');
+const questionEl = document.getElementById('question');
+const optionsEl = document.getElementById('options');
+const feedbackEl = document.getElementById('feedback');
+const nextBtn = document.getElementById('nextBtn');
+const timerEl = document.getElementById('timer');
+const scoreEl = document.getElementById('score');
 
-  // Sonidos
-  const correctSound = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
-  const wrongSound = new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
+const correctSound = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
+const wrongSound = new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
 
-  function startTimer() {
-    timeLeft = 180;
-    timerEl.textContent = `Tiempo restante: 03:00`;
-    clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-      timeLeft--;
-      let minutes = Math.floor(timeLeft / 60).toString().padStart(2,'0');
-      let seconds = (timeLeft % 60).toString().padStart(2,'0');
-      timerEl.textContent = `Tiempo restante: ${minutes}:${seconds}`;
-      if(timeLeft <= 0){
-        clearInterval(timerInterval);
-        if(!answered){
-          feedbackEl.textContent = "¡Tiempo agotado!";
-          wrongSound.play();
-          disableOptions();
-          nextBtn.disabled = false;
-          answered = true;
-        }
+function startTimer(){
+  timeLeft = 180;
+  timerEl.textContent = "Tiempo restante: 03:00";
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    let min = Math.floor(timeLeft/60).toString().padStart(2,'0');
+    let sec = (timeLeft%60).toString().padStart(2,'0');
+    timerEl.textContent = `Tiempo restante: ${min}:${sec}`;
+    if(timeLeft <= 0){
+      clearInterval(timerInterval);
+      if(!answered){
+        answered = true;
+        feedbackEl.textContent = "¡Tiempo agotado!";
+        disableOptions();
+        wrongSound.play();
+        nextBtn.disabled = false;
       }
-    }, 1000);
-  }
+    }
+  }, 1000);
+}
 
-  function loadQuestion(){
-    answered = false;
-    nextBtn.disabled = true;
-    feedbackEl.textContent = "";
-    const q = questions[currentQuestion];
-    questionEl.textContent = q.q;
-    optionsEl.innerHTML = '';
-    q.o.forEach((option, i) => {
-      let btn = document.createElement('button');
-      btn.textContent = option;
-      btn.onclick = () => selectAnswer(i);
-      btn.disabled = false;
-      optionsEl.appendChild(btn);
-    });
-    startTimer();
-  }
+function loadQuestion(){
+  answered = false;
+  nextBtn.disabled = true;
+  feedbackEl.textContent = "";
+  const q = questions[currentQuestion];
+  questionEl.textContent = q.q;
+  optionsEl.innerHTML = '';
+  q.o.forEach((opt, i) => {
+    let btn = document.createElement('button');
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    btn.disabled = false;
+    optionsEl.appendChild(btn);
+  });
+  startTimer();
+}
 
-  function selectAnswer(index){
-    if(answered) return;
-    answered =
+function selectAnswer(i){
+  if(answered) return;
+  answered = true;
+  clearInterval(timerInterval);
+  disableOptions();
+  const correctIndex = questions[currentQuestion].c;
+  if(i === correctIndex){
+    score++;
+    feedbackEl.textContent = "¡Correcto! 🎉";
+    correctSound.play();
+    launchConfetti();
+  } else {
+    feedbackEl.textContent = `Incorrecto. La respuesta correcta es: "${questions[currentQuestion].o[correctIndex]}"`;
+    wrongSound.play();
+  }
+  nextBtn.disabled = false;
+}
+
+function disableOptions(){
+  [...optionsEl.children].forEach(btn => btn.disabled = true);
+}
+
+function nextQuestion(){
+  currentQuestion++;
+  if(currentQuestion >= questions.length){
+    showScore();
+  } else {
+    loadQuestion();
+  }
+}
+
+function showScore(){
+  questionEl.textContent = "";
+  optionsEl.innerHTML = "";
+  feedbackEl.textContent = "";
+  timerEl.textContent = "";
+  nextBtn.style.display = "none";
+  scoreEl.textContent = `¡Felicidades! Obtuviste ${score} de ${questions.length} preguntas correctas. 🎉`;
+}
+
+function launchConfetti(){
+  for(let i=0; i<30; i++){
+    const confetti = document.createElement('div');
+    confetti.classList.add('confetti-piece');
+    confetti.style.left = Math.random()*window.innerWidth + 'px';
+    confetti.style.backgroundColor = `hsl(${Math.random()*360}, 70%, 60%)`;
+    confetti.style.animationDelay = (i*0.03) + 's';
+    document.body.appendChild(confetti);
+    setTimeout(() => confetti.remove(), 1200);
+  }
+}
+
+function createBubble(){
+  const bubble = document.createElement('div');
+  bubble.classList.add('bubble');
+  const size = Math.random()*20 + 10;
+  bubble.style.width = size + "px";
+  bubble.style.height = size + "px";
+  bubble.style.left = Math.random()*window.innerWidth + "px";
+  bubble.style.backgroundColor = `rgba(255, 105, 180, ${Math.random()*0.3 + 0.2})`;
+  document.body.appendChild(bubble);
+  setTimeout(() => bubble.remove(), 6000);
+}
+
+setInterval(createBubble, 800);
+
+window.onload = () => loadQuestion();
+</script>
+
+</body>
+</html>

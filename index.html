@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>SuperMate: El Reto Algebraico</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
+
+    body {
+      margin: 0; padding: 0;
+      font-family: 'Roboto Mono', monospace;
+      background: #121212;
+      color: #eee;
+      overflow-x: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      position: relative;
+    }
+
+    h1 {
+      margin: 20px 0 5px 0;
+      font-weight: 700;
+      color: #55ddff;
+      text-shadow: 0 0 10px #00aaff;
+    }
+
+    #author {
+      font-size: 0.9em;
+      color: #aaa;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+
+    #quiz {
+      background: #222;
+      border-radius: 12px;
+      padding: 25px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 0 20px #0077aa88;
+      user-select: none;
+      position: relative;
+      z-index: 1;
+    }
+
+    .question {
+      font-weight: 700;
+      font-size: 1.3em;
+      margin-bottom: 20px;
+      min-height: 70px;
+    }
+
+    #options button {
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+      background: #333;
+      color: #eee;
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      box-shadow: 0 0 10px #00446688;
+      user-select: none;
+    }
+
+    #options button:hover:not(:disabled) {
+      background: #005577;
+      box-shadow: 0 0 15px #0099ffcc;
+    }
+
+    #options button:disabled {
+      cursor: default;
+      opacity: 0.6;
+      box-shadow: none;
+    }
+
+    #feedback {
+      margin-top: 20px;
+      min-height: 28px;
+      font-weight: 700;
+      font-size: 1.1em;
+      text-align: center;
+      height: 28px;
+    }
+
+    #score {
+      margin-top: 25px;
+      font-size: 1.2em;
+      font-weight: 700;
+      text-align: center;
+      color: #55ffaa;
+      text-shadow: 0 0 7px #00ff99;
+      user-select: none;
+    }
+
+    #timer {
+      font-weight: 700;
+      font-size: 1.2em;
+      color: #ff6666;
+      margin-bottom: 18px;
+      text-align: center;
+      text-shadow: 0 0 8px #ff3333cc;
+      user-select: none;
+    }
+
+    button#nextBtn {
+      margin-top: 25px;
+      padding: 12px 30px;
+      font-size: 1.1em;
+      border-radius: 12px;
+      background: #0066cc;
+      border: none;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 0 18px #0077ffbb;
+      transition: background 0.3s ease;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      user-select: none;
+    }
+
+    button#nextBtn:disabled {
+      background: #444;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Fondo animado de fórmulas matemáticas */
+    #math-background {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+      color: #1177cc22;
+      font-size: 24px;
+      user-select: none;
+      font-weight: 700;
+      font-family: 'Roboto Mono', monospace;
+      text-shadow: 0 0 6px #0077ffaa;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: center;
+      justify-content: center;
+      opacity: 0.12;
+      animation: floatMath 20s linear infinite;
+    }
+
+    @keyframes floatMath {
+      0% { transform: translateY(100%) rotate(0deg); }
+      100% { transform: translateY(-120%) rotate(360deg); }
+    }
+
+    .math-item {
+      margin: 0 12px;
+      animation: pulse 4s ease-in-out infinite alternate;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.3; }
+      100% { opacity: 0.8; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="math-background" aria-hidden="true">
+  <div class="math-item">∑</div>
+  <div class="math-item">∫</div>
+  <div class="math-item">log</div>
+  <div class="math-item">√</div>
+  <div class="math-item">π</div>
+  <div class="math-item">∞</div>
+  <div class="math-item">x²</div>
+  <div class="math-item">∂</div>
+  <div class="math-item">e</div>
+  <div class="math-item">Δ</div>
+  <div class="math-item">≠</div>
+  <div class="math-item">≈</div>
+  <div class="math-item">θ</div>
+</div>
+
+<h1>🧠 SuperMate: El Reto Algebraico</h1>
+<div id="author">Juego creado por Luisa Ruiz Tavera</div>
+
+<div id="quiz" role="main" aria-live="polite">
+  <div id="timer" aria-label="Temporizador">Tiempo restante: 03:00</div>
+  <div class="question" id="question">Cargando pregunta...</div>
+  <div id="options" role="list"></div>
+  <div id="feedback" aria-live="assertive"></div>
+  <button id="nextBtn" onclick="nextQuestion()" disabled>Siguiente pregunta</button>
+  <div id="score" aria-label="Puntaje"></div>
+</div>
+
+<script>
+  // Sonidos para respuesta correcta / incorrecta
+  const soundCorrect = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
+  const soundWrong = new Audio('https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg');
+
+  const questions = [
+    {
+      question: "¿Cuál es el valor de log₂(8x) = 5?",
+      options: ["x = 1", "x = 4", "x = 16", "x = 32"],
+      correct: 1
+    },
+    {
+      question: "Simplifica: log₄(64) - log₄(4)",
+      options: ["2", "3", "4", "1"],
+      correct: 0
+    },
+    {
+      question: "Resuelve: log₃(x - 1) + log₃(2) = 2",
+      options: ["x = 2", "x = 3", "x = 4", "x = 5"],
+      correct: 2
+    },
+    {
+      question: "Resuelve: 3x - 2(1 - x) = 4x + 5",
+      options: ["x = -7", "x = 3", "x = -5", "x = 2"],
+      correct: 2
+    },
+    {
+      question: "Resuelve el sistema: \n2x + y = 7\nx - y = 1",
+      options: ["x=2, y=3", "x=3, y=1", "x=1, y=5", "x=4, y=-1"],
+      correct: 0
+    },
+    {
+      question: "¿Cuál es el valor de log₅(125)?",
+      options: ["2", "3", "4", "5"],
+      correct: 1
+    },
+    {
+      question: "Resuelve: 5x + 3 = 2x - 6",
+      options: ["x = -3", "x = 2", "x = 3", "x = -1"],
+      correct: 0
+    },
+    {
+      question: "Simplifica: log₉(81)",
+      options: ["2", "3", "4", "1"],
+      correct: 1
+    },
+    {
+      question: "Resuelve: log₂(32) - log₂(4)",
+      options: ["2", "3", "4", "1"],
+      correct: 2
+    },
+    {
+      question: "Resuelve: 4x + 7 = 3x + 10",
+      options: ["x = 3", "x = -3", "x = 1", "x = -1"],
+      correct: 2
+    }
+  ];
+
+  let currentQuestion = 0;
+  let score = 0;
+  let timeLeft = 180; // 3 minutos por pregunta
+  let timerInterval;
+
+  const questionEl = document.getElementById('question');
+  const optionsEl = document.getElementById('options');
+  const feedbackEl = document.getElementById('feedback');
+  const timerEl = document.getElementById('timer');
+  const nextBtn = document.getElementById('nextBtn');
+  const scoreEl = document.getElementById('score');
+
+  function startTimer() {
+    clearInterval(timerInterval);
+    timeLeft = 180;
+    updateTimer();
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      updateTimer();
+      if(timeLeft <= 0) {
+        clearInterval(timerInterval);
+        feedbackEl.textContent = '¡Tiempo agotado!';
+        disableOptions();
+        nextBtn.disabled = false;
+      }
+    }, 1000);
+  }
+
+  function updateTimer() {
+    const minutes = Math.floor(timeLeft / 60).toString().padStart(2,'0');
+    const seconds = (timeLeft % 60).toString().padStart(2,'0');
+    timerEl.textContent = `Tiempo restante: ${minutes}:${seconds}`;
+  }
+
+  function showQuestion() {
+    feedbackEl.textContent = '';
+    nextBtn.disabled = true;
+
+    const q = questions[currentQuestion];
+    questionEl.textContent = q.question;
+
+    optionsEl.innerHTML = '';
+    q.options.forEach((option, index) => {
+      const btn = document.createElement('button');
+      btn.textContent = option;
+      btn.onclick = () => selectAnswer(index);
+      optionsEl.appendChild(btn);
+    });
+
+    startTimer();
+  }
+
+  function selectAnswer(index) {
+    clearInterval(timerInterval);
+    const q = questions[currentQuestion];
+    const buttons = optionsEl.querySelectorAll('button');
+
+    buttons.forEach(btn => btn.disabled = true);
+
+    if(index === q.correct) {
+      score++;
+      feedbackEl.textContent = '¡Correcto! 🎉';
+      soundCorrect.play();
+      buttons[index].style.backgroundColor = '#2ecc71'; // verde
+    } else {
+      feedbackEl.textContent = `Incorrecto 😞. La respuesta correcta es: "${q.options[q.correct]}"`;
+      soundWrong.play();
+      buttons[index].style.backgroundColor = '#e74c3c'; // rojo
+      buttons[q.correct].style.backgroundColor = '#2ecc71'; // verde
+    }
+    nextBtn.disabled = false;
+  }
+
+  function disableOptions() {
+    const buttons = optionsEl.querySelectorAll('button');
+    buttons.forEach(btn => btn.disabled = true);
+  }
+
+  function nextQuestion() {
+    currentQuestion++;
+    if(currentQuestion >= questions.length) {
+      endGame();
+    } else {
+      showQuestion();
+    }
+  }
+
+  function endGame() {
+    questionEl.textContent = '¡Juego terminado!';
+    optionsEl.innerHTML = '';
+    feedbackEl.textContent = `Tu puntaje final es: ${score} / ${questions.length}`;
+    timerEl.textContent = '';
+    nextBtn.style.display = 'none';
+    scoreEl.textContent = `¡Gracias por jugar, Luisa Ruiz Tavera! 🎓`;
+  }
+
+  // Iniciar juego
+  showQuestion();
+</script>
+
+</body>
+</html>
